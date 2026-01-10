@@ -16,7 +16,7 @@ SCHEDULE_FILEPATH = './schedule.json'
 def is_time_in_range(start_time_str, end_time_str, curr_time):
     # Convert time strings into date objects
     start_time = datetime.strptime(start_time_str, '%H:%M').time()
-    end_time = datetime.strp(end_time_str, '%H:%M').time()
+    end_time = datetime.strptime(end_time_str, '%H:%M').time()
 
     # Normal ranges (12:00 to 20:00)
     if start_time == end_time:
@@ -62,8 +62,8 @@ async def turn_plug_off_safely(plug, plug_id):
 
 
 async def main():
-    # Current time in HH:MM format
-    now = datetime.now().strftime('%H:%M')
+    # Current time
+    now = datetime.now().time()
 
     try:
         with open(SCHEDULE_FILEPATH, 'r') as file:
@@ -92,7 +92,7 @@ async def main():
             print(f'Error trying to collect scheduled times: {e}')
         
         try:
-            plug_id = schedule["path_id"]
+            plug_id = schedule["plug_id"]
             plug_ip = os.getenv(plug_id)
             plug = SmartPlug(plug_ip)
             await plug.update()
@@ -103,13 +103,13 @@ async def main():
                 if plug.is_on:
                     print(f'{plug_id} is already on!')
                 else:
-                    turn_plug_on_safely(plug, plug_id)
+                    await turn_plug_on_safely(plug, plug_id)
             
             # Turn off plug
             else:
                 print(f'Curr time ({now.strftime('%H:%M')}) is outside the active range.')
                 if plug.is_on:
-                    turn_plug_off_safely(plug, plug_id)
+                    await turn_plug_off_safely(plug, plug_id)
                 else:
                     print(f'{plug_id} is already off!')
             
