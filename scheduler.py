@@ -89,7 +89,7 @@ async def main():
             print(f'Error trying to collect scheduled times: {e}')
         
         try:
-            plug_id = p["plug_id"]
+            plug_id = p.get("plug_id", str("Unknown plug"))
             plug_ip = os.getenv(plug_id)
             plug = SmartPlug(plug_ip)
             await plug.update()
