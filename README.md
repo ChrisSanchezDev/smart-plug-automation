@@ -1,0 +1,3 @@
+# smart-plug-automation
+
+Hi
