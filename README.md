@@ -1,6 +1,6 @@
 # HomeLab: smart-plug-automation
 
-Using Kasa HS103 Smart Plugs purchased online, I connected them into my home router, but without access to the internet. This would allow for me to have full control of the Smart Plugs since it couldn't attempt any firmware updates.
+Using Kasa HS103 Smart Plugs purchased online, I connected them into my home router but without access to the internet. This would allow for me to have full control of the Smart Plugs since it couldn't attempt any firmware updates.
 
 I was able to make use of [python-kasa](https://github.com/python-kasa/python-kasa) to control different Smart Plug functions. Everything is currently running off of my Raspberry Pi 4 at home.
 
