@@ -8,9 +8,6 @@ from kasa import SmartPlug
 
 load_dotenv()
 
-# Get plugs + schedules
-## ex. plug_0, ontime: 12:00, offtime: 18:00
-
 SCHEDULE_FILEPATH = './schedule.json'
 
 def is_time_in_range(start_time_str, end_time_str, curr_time):
@@ -84,7 +81,7 @@ async def main():
 
         # Iterating through all of a plug's time ranges
         try:
-            for time_range in schedule.get("active_ranges", []):
+            for time_range in p.get("active_ranges", []):
                 if is_time_in_range(time_range["start"], time_range["end"], now):
                     turn_plug_on = True
                     break # Rather than turn_lights_on = yadayada, we'd want to break if this is on alrdy, no need to check the other time ranges
@@ -92,7 +89,7 @@ async def main():
             print(f'Error trying to collect scheduled times: {e}')
         
         try:
-            plug_id = schedule["plug_id"]
+            plug_id = p["plug_id"]
             plug_ip = os.getenv(plug_id)
             plug = SmartPlug(plug_ip)
             await plug.update()

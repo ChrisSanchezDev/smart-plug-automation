@@ -1,6 +1,8 @@
-{
-    "plug_id": "PLUG_0",
-    "active_ranges": [
-        {"start": "12:00", "end": "19:00"}
-    ]
-}
+[
+    {
+        "plug_id": "PLUG_0",
+        "active_ranges": [
+            {"start": "12:00", "end": "19:00"}
+        ]
+    }
+]
