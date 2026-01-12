@@ -1,3 +1,5 @@
+#TODO: Replace SmartPLug for kasa.iot or Discover.discover_single() and Device.connect()
+
 import sys #???
 import json
 import asyncio #???
@@ -8,7 +10,8 @@ from kasa import SmartPlug
 
 load_dotenv()
 
-SCHEDULE_FILEPATH = './schedule.json'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SCHEDULE_FILEPATH = os.path.join(BASE_DIR, 'schedule.json')
 
 def is_time_in_range(start_time_str, end_time_str, curr_time):
     # Convert time strings into date objects
@@ -95,7 +98,6 @@ async def enabled_action(schedule, now):
         except Exception as e:
             print(f'Error connecting to a plug: {plug_id}, {e}')
 
-
 async def disabled_action(schedule):
     print('Currently ignoring all scheduled activities.')
     turn_plug_on = False
@@ -113,7 +115,6 @@ async def disabled_action(schedule):
             
         except Exception as e:
             print(f'Error connecting to a plug: {plug_id}, {e}')
-
 
 async def forced_action(schedule):
     print('Currently ignoring all scheduled activities.')
@@ -143,32 +144,21 @@ async def main():
     except FileNotFoundError:
         print(f'Schedule file can not be read. Current filepath: {SCHEDULE_FILEPATH}')
         return
-    
-    ''' Example JSON format for each schedule object:
-    [   
-        {   
-            "schedule_state = "ENABLED"
-        },
-        {
-            "plug_id": "PLUG_0",
-            "active_ranges": [
-                {"start": "12:00", "end": "19:00}
-            ]
-        }
-    ]
-    '''
+    except json.JSONDecodeError:
+        print('Error: The file exists but contains invalid JSON.')
+        return
 
     # ENABLED, DISABLED, FORCE_ON LOGIC
     schedule_state = schedule[0].get('schedule_state', 'ENABLED')
     print(f'-----scheduler.py | STATE: {schedule_state} | {now}-----')
     
-    if schedule[1:]: # Just so the code doesn't run an empty schedule
+    if len(schedule) > 1: # Just so the code doesn't run an empty schedule
         if schedule_state == 'ENABLED':
-            enabled_action(schedule[1:])
+            await enabled_action(schedule[1:], now)
         elif schedule_state == 'DISABLED':
-            enabled_action(schedule[1:])
+            await disabled_action(schedule[1:], now)
         elif schedule_state == 'FORCE_ON':
-            enabled_action(schedule[1:])
+            await forced_action(schedule[1:], now)
     print('---------------')
     
 if __name__ == '__main__':
