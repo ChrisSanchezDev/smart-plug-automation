@@ -57,25 +57,7 @@ async def turn_plug_off_safely(plug, plug_id):
     
     return
 
-
-async def main():
-    # Current time
-    now = datetime.now().time()
-
-    try:
-        with open(SCHEDULE_FILEPATH, 'r') as file:
-            schedule = json.load(file)
-    except FileNotFoundError:
-        print(f'Schedule file can not be read. Current filepath: {SCHEDULE_FILEPATH}')
-        return
-    
-    ''' Example JSON format for each schedule object:
-    {
-        "plug_id": "PLUG_0",
-        "on_times": ["00:00", "12:00"],
-        "off_times": ["06:00", "18:00"]
-    }
-    '''
+async def enabled_action(schedule, now):
     for p in schedule:
         turn_plug_on = False
 
@@ -89,7 +71,7 @@ async def main():
             print(f'Error trying to collect scheduled times: {e}')
         
         try:
-            plug_id = p.get("plug_id", str("Unknown plug"))
+            plug_id = p.get("plug_id", str('Unknown plug'))
             plug_ip = os.getenv(plug_id)
             plug = SmartPlug(plug_ip)
             await plug.update()
@@ -111,7 +93,83 @@ async def main():
                     print(f'{plug_id} is already off!')
             
         except Exception as e:
-            print(f'Error connecting to a plug: {plug_id if plug_id else 'Unknown plug'}, {e}')
+            print(f'Error connecting to a plug: {plug_id}, {e}')
 
+
+async def disabled_action(schedule):
+    print('Currently ignoring all scheduled activities.')
+    turn_plug_on = False
+    for p in schedule:
+        try:
+            plug_id = p.get("plug_id", str('Unknown plug'))
+            plug_ip = os.getenv(plug_id)
+            plug = SmartPlug(plug_ip)
+            await plug.update()
+
+            if plug.is_on:
+                await turn_plug_off_safely(plug, plug_id)
+            else:
+                print(f'{plug_id} is already off!')
+            
+        except Exception as e:
+            print(f'Error connecting to a plug: {plug_id}, {e}')
+
+
+async def forced_action(schedule):
+    print('Currently ignoring all scheduled activities.')
+    turn_plug_on = True
+    for p in schedule:
+        try:
+            plug_id = p.get("plug_id", str('Unknown plug'))
+            plug_ip = os.getenv(plug_id)
+            plug = SmartPlug(plug_ip)
+            await plug.update()
+
+            if plug.is_on:
+                print(f'{plug_id} is already on!')
+            else:
+                await turn_plug_on_safely(plug, plug_id)
+            
+        except Exception as e:
+            print(f'Error connecting to a plug: {plug_id}, {e}')
+
+async def main():
+    # Current time
+    now = datetime.now().time()
+
+    try:
+        with open(SCHEDULE_FILEPATH, 'r') as file:
+            schedule = json.load(file)
+    except FileNotFoundError:
+        print(f'Schedule file can not be read. Current filepath: {SCHEDULE_FILEPATH}')
+        return
+    
+    ''' Example JSON format for each schedule object:
+    [   
+        {   
+            "schedule_state = "ENABLED"
+        },
+        {
+            "plug_id": "PLUG_0",
+            "active_ranges": [
+                {"start": "12:00", "end": "19:00}
+            ]
+        }
+    ]
+    '''
+
+    # ENABLED, DISABLED, FORCE_ON LOGIC
+    schedule_state = schedule[0].get('schedule_state', 'ENABLED')
+    print(f'-----scheduler.py | STATE: {schedule_state} | {now}-----')
+    
+    if schedule[1:]: # Just so the code doesn't run an empty schedule
+        if schedule_state == 'ENABLED':
+            enabled_action(schedule[1:])
+        elif schedule_state == 'DISABLED':
+            enabled_action(schedule[1:])
+        elif schedule_state == 'FORCE_ON':
+            enabled_action(schedule[1:])
+    print('---------------')
+    
 if __name__ == '__main__':
     asyncio.run(main())
