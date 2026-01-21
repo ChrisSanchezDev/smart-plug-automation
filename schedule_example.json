@@ -1,11 +1,16 @@
 [
     {
-        "schedule_state": "ENABLED"
+        "plug_id": "PLUG_0",
+        "schedule_state": "ENABLED",
+        "active_ranges": [
+            {"start": "11:00", "end": "19:00"}
+        ]
     },
     {
-        "plug_id": "PLUG_0",
+        "plug_id": "PLUG_1",
+        "schedule_state": "ENABLED",
         "active_ranges": [
-            {"start": "12:00", "end": "19:00"}
+            {"start": "12:00", "end": "00:00"}
         ]
     }
 ]
