@@ -13,4 +13,9 @@ I was able to make use of [python-kasa](https://github.com/python-kasa/python-ka
     ![](https://i.imgur.com/Q37NBiP.png)
 
 ## Current Issues:
-  * SmartPlug from kasa is currently deprecated and sharing this message: "DeprecationWarning: SmartPlug is deprecated, use IotPlug from package kasa.iot instead or use Discover.discover_single() and Device.connect() to support new protocols"
+
+* SmartPlug from kasa is currently deprecated and sharing this message: "DeprecationWarning: SmartPlug is deprecated, use IotPlug from package kasa.iot instead or use Discover.discover_single() and Device.connect() to support new protocols"
+
+## Required .env variables
+
+*  

@@ -10,7 +10,7 @@
         "plug_id": "PLUG_1",
         "schedule_state": "ENABLED",
         "active_ranges": [
-            {"start": "12:00", "end": "00:00"}
+            {"start": "13:00", "end": "23:00"}
         ]
     }
 ]

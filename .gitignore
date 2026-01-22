@@ -2,3 +2,5 @@ venv/
 .env
 schedule.json
 logs/
+.vscode/
+__pycache__/
