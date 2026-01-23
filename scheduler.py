@@ -1,8 +1,7 @@
 #TODO: Replace SmartPLug for kasa.iot or Discover.discover_single() and Device.connect()
 
-import sys #???
 import json
-import asyncio #???
+import asyncio
 import os
 from dotenv import load_dotenv
 from datetime import datetime
@@ -49,7 +48,7 @@ async def turn_plug_on_safely(plug, plug_id):
     if plug.is_on:
         logger.info(f'{plug_id} has been turned on!')
     else:
-        logger.info(f'ERROR: {plug_id} is still off!')
+        logger.error(f'ERROR: {plug_id} is still off!')
     
     return
 
@@ -61,7 +60,7 @@ async def turn_plug_off_safely(plug, plug_id):
     await plug.update()
 
     if plug.is_on:
-        logger.info(f'ERROR: {plug_id} is still on!')
+        logger.error(f'ERROR: {plug_id} is still on!')
     else:
         logger.info(f'{plug_id} has been turned off!')
     
@@ -80,7 +79,7 @@ async def enabled_action(plug_id, active_ranges, now):
                 turn_plug_on = True
                 break # Rather than turn_lights_on = yadayada, we'd want to break if this is on alrdy, no need to check the other time ranges
     except Exception as e:
-        logger.info(f'Error trying to collect scheduled times: {e}')
+        logger.error(f'Error trying to collect scheduled times: {e}')
     
     try:
         plug_ip = os.getenv(plug_id)
@@ -104,7 +103,7 @@ async def enabled_action(plug_id, active_ranges, now):
                 logger.debug(f'{plug_id} is already off!')
         
     except Exception as e:
-        logger.info(f'Error connecting to a plug: {plug_id}, {e}')
+        logger.error(f'Error connecting to a plug: {plug_id}, {e}')
 
 async def disabled_action(plug_id):
     logger.debug('Currently ignoring all scheduled activities.')
@@ -120,7 +119,7 @@ async def disabled_action(plug_id):
             logger.debug(f'{plug_id} is already off!')
             
     except Exception as e:
-        logger.info(f'Error connecting to a plug: {plug_id}, {e}')
+        logger.error(f'Error connecting to a plug: {plug_id}, {e}')
 
 async def forced_action(plug_id):
     logger.debug('Currently ignoring all scheduled activities.')
@@ -136,7 +135,7 @@ async def forced_action(plug_id):
             await turn_plug_on_safely(plug, plug_id)
         
     except Exception as e:
-        logger.info(f'Error connecting to a plug: {plug_id}, {e}')
+        logger.error(f'Error connecting to a plug: {plug_id}, {e}')
 
 async def main():
     # Current time
@@ -149,7 +148,7 @@ async def main():
         logger.info(f'Schedule file can not be read. Current filepath: {SCHEDULE_FILEPATH}')
         return
     except json.JSONDecodeError:
-        logger.info('Error: The file exists but contains invalid JSON.')
+        logger.error('ERROR: The schedule file exists but contains invalid JSON.')
         return
 
     for plug in schedule:

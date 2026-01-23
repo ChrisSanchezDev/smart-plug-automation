@@ -18,4 +18,12 @@ I was able to make use of [python-kasa](https://github.com/python-kasa/python-ka
 
 ## Required .env variables
 
-*  
+### Logger.py
+* LOG_STATE ('debug' or 'info')
+* LOG_ONLY (bool)
+
+### scheduler.py
+* PLUG_0 (IP address)
+* PLUG_1 (IP address)
+* PLUG_2 (IP address)
+* PLUG_3 (IP address)
