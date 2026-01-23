@@ -6,9 +6,14 @@ from logging.handlers import RotatingFileHandler
 load_dotenv()
 
 # ----- Adjust this section per project -----
-LOG_FILE = 'scripts/smart-plug-automation/logs/smart-plug-automation.log'
+RELATIVE_LOG_FILE = 'scripts/smart-plug-automation/logs/smart-plug-automation.log'
 LOGGER_NAME = 'smart-plug-automation-logger'
 # -------------------------------------------
+
+home_dir = os.path.expanduser('~')
+LOG_FILE = os.path.join(home_dir, RELATIVE_LOG_FILE)
+
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
 LOG_STATE = os.getenv('LOG_STATE')
 LOG_ONLY = bool(os.getenv('LOG_ONLY'))
