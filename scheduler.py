@@ -6,13 +6,9 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 from logger import logger
+from kasa import SmartPlug
 
 logger.info('-----STARTING SCRIPT: scheduler.py-----')
-
-try:
-    from kasa import SmartPlug
-except Exception as e:
-    logger.debug(f'Error while importing kasa - SmartPlug: {e}')
 
 load_dotenv()
 
