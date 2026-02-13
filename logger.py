@@ -23,7 +23,7 @@ LOG_FILE_PATH = LOG_DIR / LOG_FILE_NAME # C:\Users\chris\TP_CodingFolder\03_Pers
 
 # Create log folder directory if it doesn't exist already.
 # parents=True makes parent folders if necessary (logs)
-LOG_DIR.mkdir(parents=True, exists_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 LOG_STATE = os.getenv('LOG_STATE', 'info')
 LOG_ONLY = str(os.getenv('LOG_ONLY', 'False')).lower() in ('true', '1', 't') # Handles multiple version of True. Is still a boolean
