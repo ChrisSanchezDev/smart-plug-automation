@@ -5,7 +5,6 @@ import asyncio
 import os
 from dotenv import load_dotenv
 from datetime import datetime
-from kasa import SmartPlug
 from logger import logger
 from kasa import Device
 
