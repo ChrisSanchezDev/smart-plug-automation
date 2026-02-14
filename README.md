@@ -20,6 +20,7 @@ I was able to make use of [python-kasa](https://github.com/python-kasa/python-ka
 * (-) LOG_ONLY (bool)
 
 ### scheduler.py
+Dependent on schedule.json plug_id's:
 * PLUG_0 (IP address)
 * PLUG_1 (IP address)
 * PLUG_2 (IP address)
