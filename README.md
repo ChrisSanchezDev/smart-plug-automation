@@ -12,17 +12,15 @@ I was able to make use of [python-kasa](https://github.com/python-kasa/python-ka
     
     ![](https://i.imgur.com/Q37NBiP.png)
 
-## Current Issues:
-
-* SmartPlug from kasa is currently deprecated and sharing this message: "DeprecationWarning: SmartPlug is deprecated, use IotPlug from package kasa.iot instead or use Discover.discover_single() and Device.connect() to support new protocols"
-
 ## Required .env variables
+(-): Backups incase not present
 
 ### Logger.py
-* LOG_STATE ('debug' or 'info')
-* LOG_ONLY (bool)
+* (-) LOG_STATE ('debug' or 'info')
+* (-) LOG_ONLY (bool)
 
 ### scheduler.py
+Dependent on schedule.json plug_id's:
 * PLUG_0 (IP address)
 * PLUG_1 (IP address)
 * PLUG_2 (IP address)
