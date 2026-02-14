@@ -15,7 +15,7 @@ I was able to make use of [python-kasa](https://github.com/python-kasa/python-ka
 ## Required .env variables
 (-): Backups incase not present
 
-### Logger.py
+### logger.py
 * (-) LOG_STATE ('debug' or 'info')
 * (-) LOG_ONLY (bool)
 
