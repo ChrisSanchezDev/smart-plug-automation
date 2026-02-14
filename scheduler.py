@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from kasa import SmartPlug
 from logger import logger
+from kasa import Device
 
 logger.info('-----STARTING SCRIPT: scheduler.py-----')
 
@@ -14,6 +15,9 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SCHEDULE_FILEPATH = os.path.join(BASE_DIR, 'schedule.json')
+
+# Current time
+now = datetime.now().time()
 
 def is_time_in_range(start_time_str, end_time_str, curr_time):
     # Convert time strings into date objects
@@ -38,31 +42,24 @@ async def turn_plug_on_safely(plug, plug_id):
     # Incase of hardware lag:
     await asyncio.sleep(1)
 
-    # Refresh the plug's state
-    await plug.update()
-
     if plug.is_on:
         logger.info(f'{plug_id} has been turned on!')
     else:
         logger.error(f'ERROR: {plug_id} is still off!')
-    
-    return
 
 async def turn_plug_off_safely(plug, plug_id):
     logger.info(f'Sending request to turn OFF {plug_id}...')
 
     await plug.turn_off()
+    
     await asyncio.sleep(1)
-    await plug.update()
 
     if plug.is_on:
         logger.error(f'ERROR: {plug_id} is still on!')
     else:
         logger.info(f'{plug_id} has been turned off!')
-    
-    return
 
-async def enabled_action(plug_id, active_ranges, now):
+async def enabled_action(plug, plug_id, active_ranges):
     turn_plug_on = False
 
     # Iterating through all of a plug's time ranges
@@ -75,13 +72,9 @@ async def enabled_action(plug_id, active_ranges, now):
                 turn_plug_on = True
                 break # Rather than turn_lights_on = yadayada, we'd want to break if this is on alrdy, no need to check the other time ranges
     except Exception as e:
-        logger.error(f'Error trying to collect scheduled times: {e}')
+        logger.error(f'Error trying to collect scheduled times for {plug_id}: {e}')
     
     try:
-        plug_ip = os.getenv(plug_id)
-        plug = SmartPlug(plug_ip)
-        await plug.update()
-
         # Turn on plug
         if turn_plug_on:
             logger.debug(f'Curr time ({now.strftime('%H:%M')}) is within active range.')
@@ -101,68 +94,67 @@ async def enabled_action(plug_id, active_ranges, now):
     except Exception as e:
         logger.error(f'Error connecting to a plug: {plug_id}, {e}')
 
-async def disabled_action(plug_id):
-    logger.debug('Currently ignoring all scheduled activities.')
-    turn_plug_on = False
+async def disabled_action(plug, plug_id):
+    logger.debug(f'Currently ignoring all scheduled activities for {plug_id}.')
     try:
-        plug_ip = os.getenv(plug_id)
-        plug = SmartPlug(plug_ip)
-        await plug.update()
-
         if plug.is_on:
             await turn_plug_off_safely(plug, plug_id)
         else:
             logger.debug(f'{plug_id} is already off!')
             
     except Exception as e:
-        logger.error(f'Error connecting to a plug: {plug_id}, {e}')
+        logger.error(f'Error connecting to a plug \'{plug_id}\': {e}')
 
-async def forced_action(plug_id):
-    logger.debug('Currently ignoring all scheduled activities.')
-    turn_plug_on = True
+async def forced_action(plug, plug_id):
+    logger.debug(f'Currently ignoring all scheduled activities for {plug_id}.')
     try:
-        plug_ip = os.getenv(plug_id)
-        plug = SmartPlug(plug_ip)
-        await plug.update()
-
         if plug.is_on:
             logger.debug(f'{plug_id} is already on!')
         else:
             await turn_plug_on_safely(plug, plug_id)
         
     except Exception as e:
-        logger.error(f'Error connecting to a plug: {plug_id}, {e}')
+        logger.error(f'Error connecting to a plug \'{plug_id}\': {e}')
 
-async def main():
-    # Current time
-    now = datetime.now().time()
-
+async def main():    
     try:
+        # with: similar to like file = ..., but if an error occurs, the file is automatically closed.
         with open(SCHEDULE_FILEPATH, 'r') as file:
             schedule = json.load(file)
     except FileNotFoundError:
-        logger.info(f'Schedule file can not be read. Current filepath: {SCHEDULE_FILEPATH}')
+        logger.error(f'Schedule file can not be read. Current filepath: {SCHEDULE_FILEPATH}')
         return
     except json.JSONDecodeError:
         logger.error('ERROR: The schedule file exists but contains invalid JSON.')
         return
 
-    for plug in schedule:
+    for schedule_block in schedule:
         try:
-            plug_id = plug.get('plug_id', 'Unknown Plug')
-            schedule_state = plug.get('schedule_state', 'ENABLED')
-            active_ranges = plug.get('active_ranges', [])
+            plug_id = schedule_block.get('plug_id', 'Unknown Plug')
+            schedule_state = schedule_block.get('schedule_state', 'ENABLED')
+            active_ranges = schedule_block.get('active_ranges', [])
             logger.info(f'-Plug: {plug_id} | State: {schedule_state} | {now}-')
+            
+            plug_ip = os.environ[plug_id]
+            plug = await Device.connect(host=plug_ip)
         
             # ENABLED, DISABLED, FORCE_ON LOGIC
             if schedule_state == 'ENABLED':
-                await enabled_action(plug_id, active_ranges, now)
-            elif schedule_state == 'DISABLED':
-                await disabled_action(plug_id, now)
+                await enabled_action(plug, plug_id, active_ranges)
             elif schedule_state == 'FORCE_ON':
-                await forced_action(plug_id, now)
+                await forced_action(plug, plug_id)
+            elif schedule_state == 'DISABLED':
+                await disabled_action(plug, plug_id)
+            else:
+                logger.info(f'Schedule state doesn\'t match current presets (ENABLED, FORCE_ON, DISABLED): {schedule.state}')
+                logger.debug(f'Proceeding with disabled_action, but please fix this as soon as possible.')
+                await disabled_action(plug, plug_id)
+                
+        except KeyError as e:
+            logger.error(f'Error finding plug_ip using plug_id \'{plug_id}\': {e}')
         except Exception as e:
-            logger.info(f'Error defining plug variables: {e}')
+            logger.error(f'Error defining plug variables: {e}')
+            
     logger.info('-----END OF SCRIPT--------------------')
     
 if __name__ == '__main__':

@@ -1,16 +1,26 @@
 [
     {
         "plug_id": "PLUG_0",
+        "nickname": "FISH_LAMP",
         "schedule_state": "ENABLED",
         "active_ranges": [
-            {"start": "11:00", "end": "19:00"}
+            {"start": "11:00", "end": "20:00"}
         ]
     },
     {
         "plug_id": "PLUG_1",
+        "nickname": "UV_LAMP",
         "schedule_state": "ENABLED",
         "active_ranges": [
-            {"start": "13:00", "end": "23:00"}
+            {"start": "11:00", "end": "20:00"}
+        ]
+    },
+    {
+        "plug_id": "PLUG_2",
+        "nickname": "HEAT_LAMP",
+        "schedule_state": "ENABLED",
+        "active_ranges": [
+            {"start": "11:00", "end": "20:00"}
         ]
     }
 ]
