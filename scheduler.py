@@ -67,7 +67,7 @@ async def enabled_action(plug, plug_id, active_ranges, timer):
         for time_range in active_ranges:
             if not time_range: # No active range at all
                 logger.info(f'No active ranges detected for {plug_id}! Skipping expected enabled action')
-                return
+                return timer
             if is_time_in_range(time_range["start"], time_range["end"], now):
                 turn_plug_on = True
                 break # Rather than turn_lights_on = yadayada, we'd want to break if this is on alrdy, no need to check the other time ranges
@@ -101,6 +101,8 @@ async def enabled_action(plug, plug_id, active_ranges, timer):
         
     except Exception as e:
         logger.error(f'Error connecting to a plug: {plug_id}, {e}')
+    
+    return timer
 
 async def disabled_action(plug, plug_id):
     logger.debug(f'Currently ignoring all scheduled activities for {plug_id}.')
@@ -141,7 +143,7 @@ async def main():
             plug_id = schedule_block.get('plug_id', 'Unknown Plug')
             schedule_state = schedule_block.get('schedule_state', 'ENABLED')
             active_ranges = schedule_block.get('active_ranges', [])
-            timer = timer.get('timer', 0)
+            curr_timer = schedule_block.get('timer', 0)
             logger.info(f'-Plug: {plug_id} | State: {schedule_state} | {now}-')
             
             plug_ip = os.environ[plug_id]
@@ -156,7 +158,8 @@ async def main():
         
             # ENABLED, DISABLED, FORCE_ON LOGIC
             if schedule_state == 'ENABLED':
-                await enabled_action(plug, plug_id, active_ranges, timer)
+                new_timer = await enabled_action(plug, plug_id, active_ranges, curr_timer)
+                schedule_block['timer'] = new_timer
             elif schedule_state == 'FORCE_ON':
                 await forced_action(plug, plug_id)
             elif schedule_state == 'DISABLED':
@@ -170,6 +173,14 @@ async def main():
             logger.error(f'Error finding plug_ip using plug_id \'{plug_id}\': {e}')
         except Exception as e:
             logger.error(f'Error defining plug variables: {e}')
+            
+        if curr_timer != new_timer:
+            try:
+                with open(SCHEDULE_FILEPATH, 'w') as file:
+                    json.dump(schedule, file, indent=4)
+                logger.debug('Successfully updated schedule.json with the new timer values.')
+            except Exception as e:
+                logger.error(f'ERROR: Failed to write to schedule file: {e}')
             
     logger.info('-----END OF SCRIPT--------------------')
     
