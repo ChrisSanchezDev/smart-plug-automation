@@ -5,7 +5,8 @@
         "schedule_state": "ENABLED",
         "active_ranges": [
             {"start": "11:00", "end": "20:00"}
-        ]
+        ],
+        "timer": 0
     },
     {
         "plug_id": "PLUG_1",
@@ -13,7 +14,8 @@
         "schedule_state": "ENABLED",
         "active_ranges": [
             {"start": "11:00", "end": "20:00"}
-        ]
+        ],
+        "timer": 180
     },
     {
         "plug_id": "PLUG_2",
@@ -21,6 +23,7 @@
         "schedule_state": "ENABLED",
         "active_ranges": [
             {"start": "11:00", "end": "20:00"}
-        ]
+        ],
+        "timer": 180
     }
 ]

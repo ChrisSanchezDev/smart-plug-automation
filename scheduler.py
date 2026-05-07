@@ -12,6 +12,7 @@ logger.info('-----STARTING SCRIPT: scheduler.py-----')
 
 load_dotenv()
 
+INTERVAL = 30
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SCHEDULE_FILEPATH = os.path.join(BASE_DIR, 'schedule.json')
 
@@ -58,25 +59,33 @@ async def turn_plug_off_safely(plug, plug_id):
     else:
         logger.info(f'{plug_id} has been turned off!')
 
-async def enabled_action(plug, plug_id, active_ranges):
+async def enabled_action(plug, plug_id, active_ranges, timer):
     turn_plug_on = False
 
     # Iterating through all of a plug's time ranges
     try:
         for time_range in active_ranges:
-            if not time_range:
-                logger.info(f'No active ranges detected for {plug_id}! Skipping enabled action')
+            if not time_range: # No active range at all
+                logger.info(f'No active ranges detected for {plug_id}! Skipping expected enabled action')
                 return
             if is_time_in_range(time_range["start"], time_range["end"], now):
                 turn_plug_on = True
                 break # Rather than turn_lights_on = yadayada, we'd want to break if this is on alrdy, no need to check the other time ranges
+            if timer > 0:
+                logger.info(f'Outside of range but timer exists for {plug_id}. Turning plug on and decrementing timer. Current Timer: {timer}')
+                turn_plug_on = True
+                timer -= INTERVAL
+                if timer < 0:
+                    timer = 0
+                logger.info(f'Decrementing timer to: {timer}')
+                break
     except Exception as e:
         logger.error(f'Error trying to collect scheduled times for {plug_id}: {e}')
     
     try:
         # Turn on plug
         if turn_plug_on:
-            logger.debug(f'Curr time ({now.strftime('%H:%M')}) is within active range.')
+            logger.debug(f'Curr time ({now.strftime('%H:%M')}) is within active range or within timer increase.')
             if plug.is_on:
                 logger.debug(f'{plug_id} is already on!')
             else:
@@ -132,6 +141,7 @@ async def main():
             plug_id = schedule_block.get('plug_id', 'Unknown Plug')
             schedule_state = schedule_block.get('schedule_state', 'ENABLED')
             active_ranges = schedule_block.get('active_ranges', [])
+            timer = timer.get('timer', 0)
             logger.info(f'-Plug: {plug_id} | State: {schedule_state} | {now}-')
             
             plug_ip = os.environ[plug_id]
@@ -139,7 +149,7 @@ async def main():
         
             # ENABLED, DISABLED, FORCE_ON LOGIC
             if schedule_state == 'ENABLED':
-                await enabled_action(plug, plug_id, active_ranges)
+                await enabled_action(plug, plug_id, active_ranges, timer)
             elif schedule_state == 'FORCE_ON':
                 await forced_action(plug, plug_id)
             elif schedule_state == 'DISABLED':
