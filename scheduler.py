@@ -12,7 +12,7 @@ logger.info('-----STARTING SCRIPT: scheduler.py-----')
 
 load_dotenv()
 
-INTERVAL = 30
+EXECUTION_INTERVAL = 30
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SCHEDULE_FILEPATH = os.path.join(BASE_DIR, 'schedule.json')
 
@@ -74,7 +74,7 @@ async def enabled_action(plug, plug_id, active_ranges, timer):
             if timer > 0:
                 logger.info(f'Outside of range but timer exists for {plug_id}. Turning plug on and decrementing timer. Current Timer: {timer}')
                 turn_plug_on = True
-                timer -= INTERVAL
+                timer -= EXECUTION_INTERVAL
                 if timer < 0:
                     timer = 0
                 logger.info(f'Decrementing timer to: {timer}')
@@ -146,6 +146,13 @@ async def main():
             
             plug_ip = os.environ[plug_id]
             plug = await Device.connect(host=plug_ip)
+            
+            retrieved_interval = os.getenv('EXECUTION_INTERVAL')
+            if (retrieved_interval is not None) and (retrieved_interval.isdigit()):
+                global EXECUTION_INTERVAL 
+                EXECUTION_INTERVAL = int(retrieved_interval)
+            elif not retrieved_interval.isdigit():
+                logger.error(f'EXECUTION_INTERVAL var is NOT convertable to an int. Backing up to a default interval: {EXECUTION_INTERVAL}')
         
             # ENABLED, DISABLED, FORCE_ON LOGIC
             if schedule_state == 'ENABLED':

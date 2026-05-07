@@ -1,0 +1,12 @@
+# logger.py
+LOG_ONLY='debug' or 'info' (default: info)
+LOG_ONLY=bool (default: true)
+
+# scheduler.py
+EXECUTION_INTERVAL=Crontab scheduled timeframe (default: 30)
+
+# Dependent on schedule.json plug_id's:
+PLUG_0=IP address
+PLUG_1=IP address
+PLUG_2=IP address
+PLUG_3=IP address

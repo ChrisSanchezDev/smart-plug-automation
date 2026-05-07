@@ -12,17 +12,3 @@ I was able to make use of [python-kasa](https://github.com/python-kasa/python-ka
     * Timer has also been added, allowing for additional time to be temporarily added onto the already scheduled timeframe.
     
     ![](https://i.imgur.com/Q37NBiP.png)
-
-## Required .env variables
-(-): Backups incase not present
-
-### logger.py
-* (-) LOG_STATE ('debug' or 'info')
-* (-) LOG_ONLY (bool)
-
-### scheduler.py
-Dependent on schedule.json plug_id's:
-* PLUG_0 (IP address)
-* PLUG_1 (IP address)
-* PLUG_2 (IP address)
-* PLUG_3 (IP address)
