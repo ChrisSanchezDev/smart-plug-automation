@@ -1,0 +1,3 @@
+python_kasa==0.10.2
+python-dotenv==1.2.2
+git+https://github.com/ChrisSanchezDev/homelab-tools.git

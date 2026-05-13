@@ -3,9 +3,9 @@
 import json
 import asyncio
 import os
+from homelab_tools import logger
 from dotenv import load_dotenv
 from datetime import datetime
-from logger import logger
 from kasa import Device
 
 logger.info('-----STARTING SCRIPT: scheduler.py-----')

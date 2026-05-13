@@ -1,6 +1,7 @@
-venv/
+/venv/
+/.venv/
 .env
 schedule.json
-logs/
+/logs/
 .vscode/
-__pycache__/
+/__pycache__/

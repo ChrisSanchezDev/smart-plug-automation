@@ -1,0 +1,3 @@
+python_kasa==0.10.2
+python-dotenv==1.2.2
+-e /home/chris/WSL_TP_Coding/00_Personal-Lab/00_HomeLab/homelab-tools-repo

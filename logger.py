@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from homelab-tools import logger, telemetry-sender
 from dotenv import load_dotenv
 from logging.handlers import RotatingFileHandler
 
