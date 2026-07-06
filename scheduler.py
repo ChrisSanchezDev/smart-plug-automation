@@ -149,6 +149,7 @@ async def main():
 
     for schedule_block in schedule:
         try:
+            new_timer = 0
             plug_id = schedule_block.get('plug_id', 'Unknown Plug')
             schedule_state = schedule_block.get('schedule_state', 'ENABLED')
             active_ranges = schedule_block.get('active_ranges', [])
@@ -164,7 +165,7 @@ async def main():
                 EXECUTION_INTERVAL = int(retrieved_interval)
             elif not retrieved_interval.isdigit():
                 logger.error(f'EXECUTION_INTERVAL var is NOT convertable to an int. Backing up to a default interval: {EXECUTION_INTERVAL}')
-        
+
             # ENABLED, DISABLED, FORCE_ON LOGIC
             if schedule_state == 'ENABLED':
                 new_timer = await enabled_action(plug, plug_id, active_ranges, curr_timer)
@@ -182,7 +183,7 @@ async def main():
             logger.error(f'Error finding plug_ip using plug_id \'{plug_id}\': {e}')
         except Exception as e:
             logger.error(f'Error defining plug variables: {e}')
-            
+        
         if curr_timer != new_timer:
             try:
                 with open(SCHEDULE_FILEPATH, 'w') as file:
