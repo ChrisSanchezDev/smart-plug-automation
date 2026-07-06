@@ -1,14 +1,23 @@
-#TODO: Replace SmartPLug for kasa.iot or Discover.discover_single() and Device.connect()
-
 import json
 import asyncio
 import os
-from homelab_tools import logger
+from homelab_tools.logger import Logger
+from homelab_tools.telemetry_sender import TelemetrySender
 from dotenv import load_dotenv
 from datetime import datetime
 from kasa import Device
 
+logger = Logger().create()
 logger.info('-----STARTING SCRIPT: scheduler.py-----')
+
+# Test Area
+telemetry_sender = TelemetrySender(proj_name="smart-plug-auto")
+telemetry_sender.send_telemetry_data(
+    data={
+        "test": 1
+    },
+    eventType="test"
+)
 
 load_dotenv()
 
